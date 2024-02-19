@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <title>User Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        form {
+            width: 50%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+
+        p {
+            color: #333;
+            font-size: 16px;
+        }
+
+        td {
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>Ты простой User</h1>
+<form th:method="POST" th:action="@{/logout}" th:object="${user}">
+    <div>
+        <p>Username : <span th:text="${user.username}">Username</span></p>
+        <hr/>
+        <p>Age : <span th:text="${user.age}">Age</span></p>
+        <hr/>
+        <p>Role : <span th:text="${user.roles}">Role</span></p>
+        <hr/>
+    </div>
+    <input type="submit" value="Log Out"/>
+</form>
+</body>
+</html>
