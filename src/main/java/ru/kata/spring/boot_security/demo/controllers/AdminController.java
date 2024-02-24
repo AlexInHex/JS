@@ -15,8 +15,8 @@ import javax.validation.Valid;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private UserService userService;
-    private RoleService roleService;
+    private final UserService userService;
+    private final RoleService roleService;
 
     @Autowired
     public AdminController(UserService userService, RoleService roleService) {
@@ -37,8 +37,9 @@ public class AdminController {
     }
 
     @PostMapping("/new")
-    public String regUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
+    public String regUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, ModelMap modelMap) {
         if (bindingResult.hasErrors()) {
+            modelMap.addAttribute("roles", roleService.findAll());
             return "admin/create_user";
         }
         userService.save(user);
@@ -55,11 +56,12 @@ public class AdminController {
 
     @PatchMapping("/update/{id}")
     public String updateUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
-                             @PathVariable("id") long id) {
+                             @PathVariable("id") long id, ModelMap modelMap) {
         if (bindingResult.hasErrors()) {
+            modelMap.addAttribute("roles", roleService.findAll());
             return "/admin/update_user";
         }
-        userService.update(user, id);
+        userService.update(user);
         return "redirect:/admin";
     }
 

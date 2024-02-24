@@ -4,16 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.dao.UserDAO;
 import ru.kata.spring.boot_security.demo.entities.User;
+import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    private UserDAO userDAO;
+    private final UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -22,48 +23,58 @@ public class UserServiceImpl implements UserService {
     }
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO) {
-        this.userDAO = userDAO;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
     public User getByUsername(String username) {
 
-        return userDAO.getByUsername(username);
+        return userRepository.findByUsername(username);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        return userDAO.getAllUsers();
+        return userRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true)
     public User getUserByid(long id) {
-        Optional<User> user = userDAO.getUserByid(id);
-        return user.orElse(null);
+        Optional<User> user = userRepository.findById(id);
+        return user.orElseThrow(() -> new EntityNotFoundException("User with Id " + id + " not found"));
     }
 
     @Override
     @Transactional
     public void save(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userDAO.save(user);
+        userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public void update(User user, long id) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userDAO.update(user, id);
+    public void update(User user) {
+        Optional<User> existingUserOptional = userRepository.findById(user.getId());
+        User existingUser = existingUserOptional.orElseThrow(() ->
+                new EntityNotFoundException("User with id " + user.getId() + " not found"));
+
+        if (user.getPassword() == null || user.getPassword().isEmpty() || passwordEncoder.encode(existingUser.getPassword()).equals(user.getPassword())) {
+            user.setPassword(existingUser.getPassword());
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        existingUser.setUsername(user.getUsername());
+        userRepository.save(existingUser);
     }
 
     @Override
     @Transactional
     public void deleteUserByid(long id) {
-        userDAO.deleteUserByid(id);
+        userRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("User with id " + id + " not found"));
+        userRepository.deleteById(id);
     }
-
-
 }

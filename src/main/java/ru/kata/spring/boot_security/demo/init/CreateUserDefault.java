@@ -15,8 +15,8 @@ import java.util.Set;
 @Component
 public class CreateUserDefault {
 
-    private UserService userService;
-    private RoleService roleService;
+    private final UserService userService;
+    private final RoleService roleService;
 
     @Autowired
     public CreateUserDefault(UserService userService, RoleService roleService) {
