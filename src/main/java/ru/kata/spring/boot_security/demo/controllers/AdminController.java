@@ -5,11 +5,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.entities.Role;
 import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import javax.validation.Valid;
+import java.security.Principal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
@@ -25,43 +29,44 @@ public class AdminController {
     }
 
     @GetMapping()
-    public String allUsers(ModelMap modelMap) {
+    public String allUsers(ModelMap modelMap, Principal principal) {
+        modelMap.addAttribute("new_user", new User());
         modelMap.addAttribute("users", userService.getAllUsers());
+        modelMap.addAttribute("user", userService.getByUsername(principal.getName()));
+        modelMap.addAttribute("allRoles", roleService.findAll());
         return "/admin/all_users";
     }
 
-    @GetMapping("/new_user")
-    public String newUser(@ModelAttribute("user") User user, ModelMap modelMap) {
-        modelMap.addAttribute("roles", roleService.findAll());
-        return "admin/create_user";
-    }
-
-    @PostMapping("/new")
-    public String regUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, ModelMap modelMap) {
-        if (bindingResult.hasErrors()) {
-            modelMap.addAttribute("roles", roleService.findAll());
-            return "admin/create_user";
-        }
+    @PostMapping()
+    public String regUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
         userService.save(user);
         return "redirect:/admin";
     }
 
-    @GetMapping("/user/{id}")
-    public String getUpdate(ModelMap modelMap, @PathVariable(name = "id") long id) {
-        modelMap.addAttribute("user", userService.getUserByid(id));
-        modelMap.addAttribute("roles", roleService.findAll());
-        return "/admin/update_user";
-    }
+    @PutMapping("/{id}")
+    public String updateUser(@ModelAttribute("user") User user,
+                             @RequestParam("roles") Set<Long> roleIds,
+                             @PathVariable("id") long id) {
 
+        // Получаем объект пользователя по его id
+        User existingUser = userService.getUserByid(id);
 
-    @PatchMapping("/update/{id}")
-    public String updateUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
-                             @PathVariable("id") long id, ModelMap modelMap) {
-        if (bindingResult.hasErrors()) {
-            modelMap.addAttribute("roles", roleService.findAll());
-            return "/admin/update_user";
+        // Обновляем поля пользователя, которые могут измениться
+        existingUser.setUsername(user.getUsername());
+        existingUser.setAge(user.getAge());
+        existingUser.setPassword(user.getPassword());
+
+        // Обновляем роли пользователя
+        Set<Role> roles = new HashSet<>();
+        for (Long roleId : roleIds) {
+            Role role = roleService.getRoleById(roleId);
+            roles.add(role);
         }
-        userService.update(user);
+        existingUser.setRoles(roles);
+
+        // Сохраняем обновленного пользователя
+        userService.update(existingUser);
+
         return "redirect:/admin";
     }
 
