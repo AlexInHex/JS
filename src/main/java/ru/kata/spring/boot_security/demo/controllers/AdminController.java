@@ -48,15 +48,12 @@ public class AdminController {
                              @RequestParam("roles") Set<Long> roleIds,
                              @PathVariable("id") long id) {
 
-        // Получаем объект пользователя по его id
         User existingUser = userService.getUserByid(id);
 
-        // Обновляем поля пользователя, которые могут измениться
         existingUser.setUsername(user.getUsername());
         existingUser.setAge(user.getAge());
         existingUser.setPassword(user.getPassword());
 
-        // Обновляем роли пользователя
         Set<Role> roles = new HashSet<>();
         for (Long roleId : roleIds) {
             Role role = roleService.getRoleById(roleId);
@@ -64,7 +61,6 @@ public class AdminController {
         }
         existingUser.setRoles(roles);
 
-        // Сохраняем обновленного пользователя
         userService.update(existingUser);
 
         return "redirect:/admin";
