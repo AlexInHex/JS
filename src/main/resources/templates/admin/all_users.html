@@ -19,7 +19,8 @@
         <p class="navbar-brand text-white">
             <b><span class="align-middle" th:utext="${user.getUsername()}"></span></b>
             <span class="align-middle">with roles:</span>
-            <span class="align-middle" th:utext="${user.getRoles()}"></span>
+            <span class="align-middle" th:if="${user.getRoles().contains('ADMIN')}">ADMIN, </span>
+            <span class="align-middle" th:if="${user.getRoles().contains('USER')}">USER</span>
         </p>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="btn btn-dark text-secondary">Logout</button>

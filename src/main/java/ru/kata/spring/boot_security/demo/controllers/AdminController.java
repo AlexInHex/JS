@@ -48,20 +48,7 @@ public class AdminController {
                              @RequestParam("roles") Set<Long> roleIds,
                              @PathVariable("id") long id) {
 
-        User existingUser = userService.getUserByid(id);
-
-        existingUser.setUsername(user.getUsername());
-        existingUser.setAge(user.getAge());
-        existingUser.setPassword(user.getPassword());
-
-        Set<Role> roles = new HashSet<>();
-        for (Long roleId : roleIds) {
-            Role role = roleService.getRoleById(roleId);
-            roles.add(role);
-        }
-        existingUser.setRoles(roles);
-
-        userService.update(existingUser);
+        userService.update(user, roleIds);
 
         return "redirect:/admin";
     }
@@ -71,5 +58,4 @@ public class AdminController {
         userService.deleteUserByid(id);
         return "redirect:/admin";
     }
-
 }

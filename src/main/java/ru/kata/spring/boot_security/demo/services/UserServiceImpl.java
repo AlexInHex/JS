@@ -4,17 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.entities.Role;
 import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final RoleService roleService;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -23,8 +27,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleService roleService) {
         this.userRepository = userRepository;
+        this.roleService = roleService;
     }
 
     @Transactional(readOnly = true)
@@ -55,19 +60,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void update(User user) {
-        Optional<User> existingUserOptional = userRepository.findById(user.getId());
-        User existingUser = existingUserOptional.orElseThrow(() ->
-                new EntityNotFoundException("User with id " + user.getId() + " not found"));
+    public void update(User user, Set<Long> roleIds) {
+        User existingUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + user.getId() + " not found"));
 
-        if (user.getPassword() == null || user.getPassword().isEmpty() || passwordEncoder.encode(existingUser.getPassword()).equals(user.getPassword())) {
-            user.setPassword(existingUser.getPassword());
-        } else {
+        if (!user.getPassword().isEmpty() && !passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+            user.setPassword(existingUser.getPassword());
         }
 
-        existingUser.setUsername(user.getUsername());
-        userRepository.save(existingUser);
+        Set<Role> roles = new HashSet<>();
+        for (Long roleId : roleIds) {
+            Role role = roleService.getRoleById(roleId);
+            roles.add(role);
+        }
+        user.setRoles(roles);
+
+        userRepository.save(user);
     }
 
     @Override
