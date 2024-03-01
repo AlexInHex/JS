@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("admin")
+@RequestMapping("api/admin")
 public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
@@ -49,8 +49,8 @@ public class AdminController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> editUser(@RequestBody User user, Set<Long> roleIds) {
-        userService.update(user, roleIds);
+    public ResponseEntity<Void> editUser(@RequestBody User user) {
+        userService.update(user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

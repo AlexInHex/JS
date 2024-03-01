@@ -1,6 +1,6 @@
 let currentUser = "";
 
-fetch("http://localhost:8080/user/current").then(res => res.json())
+fetch("http://localhost:8080/api/user/current").then(res => res.json())
     .then(data => {
         currentUser = data;
         console.log(data)
@@ -14,7 +14,7 @@ function showOneUser(user) {
     temp += "<td>" + user.id + "</td>"
     temp += "<td>" + user.age + "</td>"
     temp += "<td>" + user.username + "</td>"
-    temp += "<td>" + user.roles.map(role=>role.roleType.substring(5)) + "</td>"
+    temp += "<td>" + user.roles.map(role=>role.name.substring(5)) + "</td>"
     temp += "</tr>"
     document.getElementById("oneUserBody").innerHTML = temp;
     console.log("Скрипт выполнен");

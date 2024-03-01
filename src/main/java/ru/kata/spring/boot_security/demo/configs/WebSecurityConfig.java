@@ -34,7 +34,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin().successHandler(successUserHandler).permitAll()
                 .and()
-                .logout().permitAll();
+                .logout().permitAll()
+                .and().csrf().disable();
     }
 
     // аутентификация inMemory

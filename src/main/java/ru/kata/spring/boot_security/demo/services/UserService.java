@@ -15,7 +15,7 @@ public interface UserService {
 
     void save(User user);
 
-    void update(User user, Set<Long> roleIds);
+    void update(User user);
 
     void deleteUserByid(long id);
 }

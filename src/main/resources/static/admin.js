@@ -2,7 +2,7 @@ let tableUsers = [];
 let currentUser = "";
 let deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
 let editModal = new bootstrap.Modal(document.getElementById('editModal'));
-let request = new Request("http://localhost:8080/admin", {
+let request = new Request("http://localhost:8080/api/admin", {
     method: "GET",
     headers: {
         'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ function getUsers() {
     })
 }
 
-fetch("http://localhost:8080/admin/current").then(res => res.json())
+fetch("http://localhost:8080/api/admin/current").then(res => res.json())
     .then(data => {
         currentUser = data;
         console.log(data)
@@ -40,7 +40,7 @@ function showUsers(table) {
         temp += "<td>" + user.id + "</td>"
         temp += "<td>" + user.age + "</td>"
         temp += "<td>" + user.username + "</td>"
-        temp += "<td>" + user.roles.map(role=>role.roleType.substring(5)) + "</td>"
+        temp += "<td>" + user.roles.map(role=>role.name.substring(5)) + "</td>"
         temp += "<td>" + `<a onclick='showEditModal(${user.id})' class="btn btn-outline-info" id="edit">Edit user</a>` + "</td>"
         temp += "<td>" + `<a onclick='showDeleteModal(${user.id})' class="btn btn-outline-danger" id="delete">Delete user</a>` + "</td>"
         temp += "</tr>"
@@ -67,7 +67,7 @@ function showOneUser(user) {
     temp += "<td>" + user.id + "</td>"
     temp += "<td>" + user.age + "</td>"
     temp += "<td>" + user.username + "</td>"
-    temp += "<td>" + user.roles.map(role=>role.roleType.substring(5)) + "</td>"
+    temp += "<td>" + user.roles.map(role=>role.name.substring(5)) + "</td>"
     temp += "</tr>"
     document.getElementById("oneUserBody").innerHTML = temp;
 }
@@ -85,12 +85,12 @@ function rolesUser(event) {
     }
     if (roles.includes('1')) {
         rolesAdmin["id"] = 1;
-        rolesAdmin["roleType"] = "ROLE_ADMIN";
+        rolesAdmin["name"] = "ROLE_ADMIN";
         allRoles.push(rolesAdmin);
     }
     if (roles.includes('2')) {
         rolesUser["id"] = 2;
-        rolesUser["roleType"] = "ROLE_USER";
+        rolesUser["name"] = "ROLE_USER";
         allRoles.push(rolesUser);
     }
     return allRoles;
@@ -109,7 +109,7 @@ function addNewUser(form) {
         roles: rolesUser("#roles")
     };
 
-    let req = new Request("http://localhost:8080/admin", {
+    let req = new Request("http://localhost:8080/api/admin", {
         method: 'POST',
         body: JSON.stringify(user),
         headers: {
@@ -128,7 +128,7 @@ function showDeleteModal(id) {
         document.getElementById('deleteUser').reset();
     });
 
-    let request = new Request("http://localhost:8080/admin/" + id, {
+    let request = new Request("http://localhost:8080/api/admin/" + id, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ function showDeleteModal(id) {
         event.preventDefault();
         if (!isDelete) {
             isDelete = true;
-            let request = new Request('http://localhost:8080/admin/' + id, {
+            let request = new Request('http://localhost:8080/api/admin/' + id, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -174,7 +174,7 @@ function showDeleteModal(id) {
 }
 
 function showEditModal(id) {
-    let request = new Request("http://localhost:8080/admin/" + id, {
+    let request = new Request("http://localhost:8080/api/admin/" + id, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ function submitFormEditUser(event) {
         roles: rolesUser("#rolesEdit")
     }
     console.log(user);
-    let request = new Request('http://localhost:8080/admin', {
+    let request = new Request('http://localhost:8080/api/admin', {
         method: 'PUT',
         body: JSON.stringify(user),
         headers: {
