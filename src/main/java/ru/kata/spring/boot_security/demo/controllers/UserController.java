@@ -12,6 +12,10 @@ import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("user")
@@ -35,4 +39,18 @@ public class UserController {
         User user = userService.getByUsername(principal.getName());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
+    //@GetMapping("/current")
+    //public ResponseEntity<Map<String, Object>> currentUser(Principal principal) {
+    //    User user = userService.getByUsername(principal.getName());
+    //    Map<String, Object> userData = new HashMap<>();
+    //    userData.put("id", user.getId());
+    //    userData.put("age", user.getAge());
+    //    userData.put("username", user.getUsername());
+    //    List<String> roles = user.getRoles().stream()
+    //            .map(role -> role.getName().substring(5))
+    //            .collect(Collectors.toList());
+    //    userData.put("roles", roles);
+    //    return ResponseEntity.ok(userData);
+    //}
 }

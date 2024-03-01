@@ -8,6 +8,7 @@ fetch("http://localhost:8080/user/current").then(res => res.json())
     })
 
 function showOneUser(user) {
+    console.log("Данные пользователя успешно получены:", user);
     let temp = "";
     temp += "<tr>"
     temp += "<td>" + user.id + "</td>"
@@ -16,4 +17,6 @@ function showOneUser(user) {
     temp += "<td>" + user.roles.map(role=>role.roleType.substring(5)) + "</td>"
     temp += "</tr>"
     document.getElementById("oneUserBody").innerHTML = temp;
+    console.log("Скрипт выполнен");
+
 }
